@@ -3,7 +3,9 @@
 
 #include "Actors/FourTaleBaseWeapon.h"
 
-DEFINE_LOG_CATEGORY_STATIC(BaseWeaponLog, All,All)
+#include "GameFramework/Character.h"
+
+DEFINE_LOG_CATEGORY_STATIC(BaseWeaponLog, All, All)
 
 // Sets default values
 AFourTaleBaseWeapon::AFourTaleBaseWeapon()
@@ -19,7 +21,8 @@ void AFourTaleBaseWeapon::StartShoot()
 		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs World not valid"), __FUNCTION__)
 		return;
 	}
-	World->GetTimerManager().SetTimer(ShootTimer, this, &AFourTaleBaseWeapon::TryToMakeShot, WeaponStats.FireDelay, true);
+	World->GetTimerManager().SetTimer(ShootTimer, this, &AFourTaleBaseWeapon::TryToMakeShot, WeaponStats.FireDelay,
+	                                  true);
 	TryToMakeShot();
 }
 
@@ -47,6 +50,7 @@ void AFourTaleBaseWeapon::ChangeWeaponFireMode()
 	int32 NextIndex = (CurrentIndex + 1) % ModesArray.Num();
 	WeaponStats.CurrentFiringMode = ModesArray[NextIndex];
 	UE_LOG(BaseWeaponLog, Display, TEXT("%s now current weapon fire mode"), *GetFiringModeAsString());
+	OnWeaponActorChangeFireMode.Broadcast(WeaponStats);
 }
 
 void AFourTaleBaseWeapon::InitializeFiringModeToStringMap()
@@ -68,22 +72,57 @@ FString AFourTaleBaseWeapon::GetFiringModeAsString() const
 
 void AFourTaleBaseWeapon::MakeShot()
 {
+	ACharacter* Player = Cast<ACharacter>(GetOwner());
+	if (!Player)
+	{
+		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs Player not valid"), __FUNCTION__)
+		return;
+	}
+	AController* Controller = Player->GetController<AController>();
+	if (!Controller)
+	{
+		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs Controller not valid"), __FUNCTION__)
+		return;
+	}
+	FVector ViewLocation;
+	FRotator ViewRotation;
+	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	FVector TraceStart = ViewLocation;
+	float ConeHalfAngleRad = FMath::DegreesToRadians(WeaponStats.BulletSpread);
+	FVector ShootDirection = FMath::VRandCone(ViewRotation.Vector(), ConeHalfAngleRad);
+	FVector TraceEnd = TraceStart + ShootDirection * 100000;
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(GetOwner());
+	if (!GetWorld())
+	{
+		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs world not valid"), __FUNCTION__)
+		return;
+	}
+	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, Params);
+	DrawDebugLine(GetWorld(),TraceStart, TraceEnd, FColor::Red, false, 5, 0 ,20);
 	WeaponStats.CurrentAmmo--;
-	UE_LOG(BaseWeaponLog, Warning, TEXT("%hs pew! ammo %d"), __FUNCTION__, WeaponStats.CurrentAmmo)
+	UE_LOG(BaseWeaponLog, Display, TEXT("%hs pew! ammo %d"), __FUNCTION__, WeaponStats.CurrentAmmo)
 }
 
 void AFourTaleBaseWeapon::TryToMakeShot()
 {
-	if (WeaponStats.Ammo <= 0 || WeaponStats.SemiAutoShotsDone >= WeaponStats.SemiAutoShotsCount)
+	if (WeaponStats.CurrentAmmo <= 0 || WeaponStats.SemiAutoShotsDone >= WeaponStats.SemiAutoShotsCount)
 	{
 		GetWorldTimerManager().ClearTimer(ShootTimer);
 		return;
 	}
-	
-	switch (WeaponStats.CurrentFiringMode) {
-	case EFiringMode::FM_Single: MakeShot(); GetWorldTimerManager().ClearTimer(ShootTimer); break;
-	case EFiringMode::FM_SemiAuto: WeaponStats.SemiAutoShotsDone++; MakeShot(); break;
-	case EFiringMode::FM_FullAuto: MakeShot(); break;
+
+	switch (WeaponStats.CurrentFiringMode)
+	{
+	case EFiringMode::FM_Single: MakeShot();
+		GetWorldTimerManager().ClearTimer(ShootTimer);
+		break;
+	case EFiringMode::FM_SemiAuto: WeaponStats.SemiAutoShotsDone++;
+		MakeShot();
+		break;
+	case EFiringMode::FM_FullAuto: MakeShot();
+		break;
 	case EFiringMode::FM_MAX: break;
 	default: ;
 	}
@@ -96,7 +135,8 @@ void AFourTaleBaseWeapon::BeginPlay()
 	if (WeaponStats.AvailableFiringMode.Array().IsEmpty())
 	{
 		WeaponStats.AvailableFiringMode.Add(EFiringMode::FM_Single);
-		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs Available Firing Mode is empty in %s"), __FUNCTION__, *this->GetClass()->GetName())
+		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs Available Firing Mode is empty in %s"), __FUNCTION__,
+		       *this->GetClass()->GetName())
 	}
 	WeaponStats.CurrentFiringMode = WeaponStats.AvailableFiringMode.Array()[0];
 }
@@ -106,4 +146,3 @@ void AFourTaleBaseWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-

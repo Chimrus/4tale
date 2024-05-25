@@ -8,3 +8,8 @@ AFourTaleGameMode::AFourTaleGameMode()
 {
 	DefaultPawnClass = AFourTaleCharacter::StaticClass();
 }
+
+void AFourTaleGameMode::StopRound()
+{
+	SetPause(nullptr, false);
+}

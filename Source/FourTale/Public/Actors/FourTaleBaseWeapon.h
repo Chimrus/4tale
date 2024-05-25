@@ -39,9 +39,15 @@ struct FWeaponStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	float FireDelay = 0.5f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	float BulletSpread = 2.5f;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	EFiringMode CurrentFiringMode;
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponActorMakeShotSignature, FWeaponStats&, WeaponStats);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponActorChangeFireModeSignature, FWeaponStats&, WeaponStats);
 
 
 UCLASS()
@@ -64,6 +70,11 @@ public:
 	void MakeShot();
 	void TryToMakeShot();
 
+	UPROPERTY()
+	FOnWeaponActorMakeShotSignature OnWeaponActorMakeShot;
+
+	UPROPERTY()
+	FOnWeaponActorChangeFireModeSignature OnWeaponActorChangeFireMode;
 protected:
 	virtual void BeginPlay() override;
 

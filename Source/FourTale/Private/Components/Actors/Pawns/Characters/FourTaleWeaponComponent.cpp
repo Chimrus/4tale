@@ -44,6 +44,28 @@ void UFourTaleWeaponComponent::ChangeWeaponFireMode()
 }
 
 
+void UFourTaleWeaponComponent::WeaponActorMakeShot(FWeaponStats& WeaponStats)
+{
+	OnWeaponMakeShot.Broadcast(WeaponStats);
+}
+
+void UFourTaleWeaponComponent::WeaponActorChangeFire(FWeaponStats& WeaponStats)
+{
+	OnWeaponChangeFireMode.Broadcast(WeaponStats);
+}
+
+void UFourTaleWeaponComponent::BindWeaponDelegates(AFourTaleBaseWeapon* CurrentWeapon)
+{
+	CurrentWeapon->OnWeaponActorMakeShot.AddDynamic(this, &UFourTaleWeaponComponent::WeaponActorMakeShot);
+	CurrentWeapon->OnWeaponActorChangeFireMode.AddDynamic(this, &UFourTaleWeaponComponent::WeaponActorChangeFire);
+}
+
+void UFourTaleWeaponComponent::UnbindWeaponDelegates(AFourTaleBaseWeapon* CurrentWeapon)
+{
+	CurrentWeapon->OnWeaponActorMakeShot.RemoveAll(this);
+	CurrentWeapon->OnWeaponActorChangeFireMode.RemoveAll(this);
+}
+
 void UFourTaleWeaponComponent::NextWeapon(bool bIsNextWeapon)
 {
 	int32 CurrentIndex = Weapons.IndexOfByKey(CurrentWeapon);
@@ -51,7 +73,9 @@ void UFourTaleWeaponComponent::NextWeapon(bool bIsNextWeapon)
 	{
 		int32 NextIndex = bIsNextWeapon ? (CurrentIndex + 1) % Weapons.Num() : (CurrentIndex - 1 + Weapons.Num()) % Weapons.Num();
 		CurrentWeapon->SetActorHiddenInGame(true);
+		UnbindWeaponDelegates(CurrentWeapon);
 		CurrentWeapon = Weapons[NextIndex];
+		BindWeaponDelegates(CurrentWeapon);
 		CurrentWeapon->SetActorHiddenInGame(false);
 		UE_LOG(LogWeaponComponent, Display, TEXT("%hs, %s: CurrentWeapon changed to %s"), __FUNCTION__, bIsNextWeapon ? TEXT("true") : TEXT("false"), *CurrentWeapon->GetName());
 	}
@@ -88,11 +112,18 @@ void UFourTaleWeaponComponent::BeginPlay()
 			}
 			CurrentWeapon = Weapons[0];
 			CurrentWeapon->SetActorHiddenInGame(false);
+			BindWeaponDelegates(CurrentWeapon);
 		}
 		else
 		{
 			UE_LOG(LogWeaponComponent, Warning, TEXT("%hs Weapons Is Empty"), __FUNCTION__);
 		}
 	}
+}
+
+void UFourTaleWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	UnbindWeaponDelegates(CurrentWeapon);
 }
 

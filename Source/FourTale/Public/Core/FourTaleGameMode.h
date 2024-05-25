@@ -13,6 +13,8 @@ class AFourTaleGameMode : public AGameModeBase
 
 public:
 	AFourTaleGameMode();
+	
+	void StopRound();
 };
 
 
