@@ -24,6 +24,18 @@ struct FWeaponStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	TSet<EFiringMode> AvailableFiringMode;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	int32 Ammo = 30;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	int32 SemiAutoShotsCount = 3;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	int32 SemiAutoShotsDone = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	float FireDelay = 0.5f;
+
 	UPROPERTY()
 	EFiringMode CurrentFiringMode;
 };
@@ -46,6 +58,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	FWeaponStats WeaponStats;
+	void MakeShot();
+	void TryToMakeShot();
 
 protected:
 	virtual void BeginPlay() override;
@@ -54,4 +68,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	TMap<EFiringMode, FString> FiringModeToStringMap;
+
+	FTimerHandle ShootTimer;
 };

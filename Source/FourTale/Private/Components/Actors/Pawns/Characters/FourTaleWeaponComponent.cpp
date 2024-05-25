@@ -17,6 +17,7 @@ UFourTaleWeaponComponent::UFourTaleWeaponComponent()
 void UFourTaleWeaponComponent::StartShoot()
 {
 	UE_LOG(LogWeaponComponent, Display, TEXT("%hs"), __FUNCTION__);
+	CurrentWeapon->StartShoot();
 }
 
 void UFourTaleWeaponComponent::ReloadWeapon()
@@ -27,6 +28,7 @@ void UFourTaleWeaponComponent::ReloadWeapon()
 void UFourTaleWeaponComponent::StopShoot()
 {
 	UE_LOG(LogWeaponComponent, Display, TEXT("%hs"), __FUNCTION__);
+	CurrentWeapon->StopShoot();
 }
 
 void UFourTaleWeaponComponent::ChangeWeaponFireMode()
@@ -80,6 +82,7 @@ void UFourTaleWeaponComponent::BeginPlay()
 				AFourTaleBaseWeapon* NewWeapon = World->SpawnActor<AFourTaleBaseWeapon>(
 					Weapon, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation(), SpawnParams);
 				NewWeapon->SetActorHiddenInGame(true);
+				NewWeapon->SetOwner(GetOwner());
 				Weapons.Add(NewWeapon);
 			}
 			CurrentWeapon = Weapons[0];

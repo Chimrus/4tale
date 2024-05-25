@@ -13,11 +13,19 @@ AFourTaleBaseWeapon::AFourTaleBaseWeapon()
 
 void AFourTaleBaseWeapon::StartShoot()
 {
-	
+	const auto World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs World not valid"), __FUNCTION__)
+		return;
+	}
+	World->GetTimerManager().SetTimer(ShootTimer, this, &AFourTaleBaseWeapon::TryToMakeShot, WeaponStats.FireDelay, true);
 }
 
 void AFourTaleBaseWeapon::StopShoot()
 {
+	GetWorldTimerManager().ClearTimer(ShootTimer);
+	WeaponStats.SemiAutoShotsDone = 0;
 }
 
 void AFourTaleBaseWeapon::ReloadWeapon()
@@ -54,6 +62,29 @@ FString AFourTaleBaseWeapon::GetFiringModeAsString() const
 		return *FiringModeString;
 	}
 	return FString("Unknown");
+}
+
+void AFourTaleBaseWeapon::MakeShot()
+{
+	WeaponStats.Ammo--;
+	UE_LOG(BaseWeaponLog, Warning, TEXT("%hs pew! ammo %d"), __FUNCTION__, WeaponStats.Ammo)
+}
+
+void AFourTaleBaseWeapon::TryToMakeShot()
+{
+	if (WeaponStats.Ammo <= 0 || WeaponStats.SemiAutoShotsDone >= WeaponStats.SemiAutoShotsCount)
+	{
+		GetWorldTimerManager().ClearTimer(ShootTimer);
+		return;
+	}
+	
+	switch (WeaponStats.CurrentFiringMode) {
+	case EFiringMode::FM_Single: MakeShot(); GetWorldTimerManager().ClearTimer(ShootTimer); break;
+	case EFiringMode::FM_SemiAuto: WeaponStats.SemiAutoShotsDone++; MakeShot(); break;
+	case EFiringMode::FM_FullAuto: MakeShot(); break;
+	case EFiringMode::FM_MAX: break;
+	default: ;
+	}
 }
 
 void AFourTaleBaseWeapon::BeginPlay()
