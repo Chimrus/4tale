@@ -5,6 +5,7 @@
 #include "FourTaleWeaponComponent.generated.h"
 
 
+struct FInputActionValue;
 class AFourTaleBaseWeapon;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -26,9 +27,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TArray<TSubclassOf<AFourTaleBaseWeapon>> WeaponsClasses;
 
+	void NextWeapon(bool bIsNextWeapon);
+	
+	void ChangeWeapon(const FInputActionValue& Value);
+
 protected:
 	virtual void BeginPlay() override;
+
+	TArray<AFourTaleBaseWeapon*> Weapons;
 	
 	UPROPERTY()
-	AFourTaleBaseWeapon* CurrentWeapons;
+	AFourTaleBaseWeapon* CurrentWeapon;
 };
