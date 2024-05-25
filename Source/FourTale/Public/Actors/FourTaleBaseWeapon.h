@@ -27,16 +27,19 @@ struct FWeaponStats
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	int32 Ammo = 30;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	int32 CurrentAmmo = 30;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	int32 SemiAutoShotsCount = 3;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	int32 SemiAutoShotsDone = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	float FireDelay = 0.5f;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	EFiringMode CurrentFiringMode;
 };
 

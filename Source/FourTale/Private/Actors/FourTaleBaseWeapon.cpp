@@ -20,6 +20,7 @@ void AFourTaleBaseWeapon::StartShoot()
 		return;
 	}
 	World->GetTimerManager().SetTimer(ShootTimer, this, &AFourTaleBaseWeapon::TryToMakeShot, WeaponStats.FireDelay, true);
+	TryToMakeShot();
 }
 
 void AFourTaleBaseWeapon::StopShoot()
@@ -30,6 +31,7 @@ void AFourTaleBaseWeapon::StopShoot()
 
 void AFourTaleBaseWeapon::ReloadWeapon()
 {
+	WeaponStats.CurrentAmmo = WeaponStats.Ammo;
 }
 
 void AFourTaleBaseWeapon::ChangeWeaponFireMode()
@@ -66,8 +68,8 @@ FString AFourTaleBaseWeapon::GetFiringModeAsString() const
 
 void AFourTaleBaseWeapon::MakeShot()
 {
-	WeaponStats.Ammo--;
-	UE_LOG(BaseWeaponLog, Warning, TEXT("%hs pew! ammo %d"), __FUNCTION__, WeaponStats.Ammo)
+	WeaponStats.CurrentAmmo--;
+	UE_LOG(BaseWeaponLog, Warning, TEXT("%hs pew! ammo %d"), __FUNCTION__, WeaponStats.CurrentAmmo)
 }
 
 void AFourTaleBaseWeapon::TryToMakeShot()

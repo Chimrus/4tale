@@ -23,6 +23,7 @@ void UFourTaleWeaponComponent::StartShoot()
 void UFourTaleWeaponComponent::ReloadWeapon()
 {
 	UE_LOG(LogWeaponComponent, Display, TEXT("%hs"), __FUNCTION__);
+	CurrentWeapon->ReloadWeapon();
 }
 
 void UFourTaleWeaponComponent::StopShoot()
