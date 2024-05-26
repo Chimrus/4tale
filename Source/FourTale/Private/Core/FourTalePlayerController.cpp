@@ -4,6 +4,7 @@
 #include "FourTale/Public/Core/FourTalePlayerController.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Core/FourTaleGameMode.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/Character.h"
 
@@ -16,13 +17,40 @@ AFourTalePlayerController::AFourTalePlayerController()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
-void AFourTalePlayerController::BeginPlay()
+void AFourTalePlayerController::Respawn()
 {
-	Super::BeginPlay();
+	AFourTaleGameMode* GameMode = Cast<AFourTaleGameMode>(GetWorld()->GetAuthGameMode());
+	if (!GameMode)
+	{
+		return;
+	}
+	GameMode->RestartPlayer(this);
+}
+
+void AFourTalePlayerController::OnUnPossess()
+{
+	Super::OnUnPossess();
+	if (HUDWidget)
+	{
+		HUDWidget->RemoveFromParent();
+	}
+
+	FTimerHandle RespawnTimerHandle;
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &AFourTalePlayerController::Respawn, 5, false);
+}
+
+void AFourTalePlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	FTimerHandle HUDTimer;
+	GetWorldTimerManager().SetTimer(HUDTimer, this, &AFourTalePlayerController::CreateHUD, 1, false);
+}
+
+void AFourTalePlayerController::CreateHUD_Implementation()
+{
 	if (HUDWidgetClass)
 	{
-		UUserWidget* HUDWidget = CreateWidget<UUserWidget>(GetWorld(), HUDWidgetClass);
+		HUDWidget = CreateWidget<UUserWidget>(GetWorld(), HUDWidgetClass);
 		HUDWidget->AddToViewport();
 	}
 	else
@@ -31,13 +59,8 @@ void AFourTalePlayerController::BeginPlay()
 	}
 }
 
-// Called every frame
-void AFourTalePlayerController::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-void AFourTalePlayerController::ServerMakeShot_Implementation(const FVector& TraceStart, const FVector& TraceEnd, float Damage)
+void AFourTalePlayerController::ServerMakeShot_Implementation(const FVector& TraceStart, const FVector& TraceEnd,
+                                                              float Damage)
 {
 	ACharacter* LCharacter = Cast<ACharacter>(GetPawn());
 	if (!LCharacter)
@@ -62,7 +85,8 @@ void AFourTalePlayerController::ServerMakeShot_Implementation(const FVector& Tra
 	MulticastPlayShotEffects(TraceStart, TraceEnd);
 }
 
-void AFourTalePlayerController::MulticastPlayShotEffects_Implementation(const FVector& TraceStart, const FVector& TraceEnd)
+void AFourTalePlayerController::MulticastPlayShotEffects_Implementation(const FVector& TraceStart,
+                                                                        const FVector& TraceEnd)
 {
 	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 1.0f);
 }

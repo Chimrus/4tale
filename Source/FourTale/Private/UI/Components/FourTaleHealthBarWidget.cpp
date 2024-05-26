@@ -20,7 +20,8 @@ void UFourTaleHealthBarWidget::NativeConstruct()
 	{
 		return;
 	}
-	HealthComponent->OnHealthChange.AddUObject(this, &UFourTaleHealthBarWidget::HealthUpdate);
+	HealthComponent->OnHealthChange.AddDynamic(this, &UFourTaleHealthBarWidget::HealthUpdate);
+	HealthUpdate(HealthComponent->GetHealth(),HealthComponent->GetHealth());
 }
 
 void UFourTaleHealthBarWidget::NativeDestruct()
@@ -36,7 +37,7 @@ void UFourTaleHealthBarWidget::HealthUpdate(float NewHealthValue, float OldHealt
 	HealthProgressBar->SetFillColorAndOpacity(HealthColor);
 	FText HealthText = FText::FromString(FString::Printf(
 		TEXT("%d / %d"),
-		FMath::RoundToInt(HealthComponent->GetHealth()),
+		FMath::RoundToInt(NewHealthValue),
 		FMath::RoundToInt(HealthComponent->GetMaxHealth())));
 	HealthCount->SetText(HealthText);
 }

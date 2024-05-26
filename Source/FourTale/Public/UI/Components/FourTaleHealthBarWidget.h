@@ -18,18 +18,18 @@ class FOURTALE_API UFourTaleHealthBarWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UFUNCTION()
+	void HealthUpdate(float NewHealthValue, float OldHealthValue);
 
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-	
-	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UProgressBar* HealthProgressBar;
 
-	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* HealthCount;
 
 	UPROPERTY()
 	UFourTaleHealthComponent* HealthComponent;
-
-	void HealthUpdate(float NewHealthValue, float OldHealthValue);
 };

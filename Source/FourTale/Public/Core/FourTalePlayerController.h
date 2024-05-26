@@ -17,16 +17,19 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 
+	UPROPERTY()
+	UUserWidget* HUDWidget;
+	void Respawn();
+
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastPlayShotEffects(const FVector& TraceStart, const FVector& TraceEnd);
 	
 	UFUNCTION(Server, Reliable)
 	void ServerMakeShot(const FVector& TraceStart, const FVector& TraceEnd, float Damage);
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void OnUnPossess() override;
+	virtual void OnPossess(APawn* InPawn) override;
 
-public:
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION(Client,Reliable)
+	void CreateHUD();
 };

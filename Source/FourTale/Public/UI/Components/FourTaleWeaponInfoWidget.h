@@ -16,17 +16,18 @@ UCLASS()
 class FOURTALE_API UFourTaleWeaponInfoWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
 public:
 	UFUNCTION()
 	void WeaponDataChange(FWeaponStats& WeaponStats);
-	
+
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
-	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UTextBlock* AmmoCount;
 
-	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UWidgetSwitcher* WeaponFireMode;
 
 	UPROPERTY()

@@ -7,7 +7,7 @@
 #include "FourTaleHealthComponent.generated.h"
 class AFourTaleCharacter;
 DECLARE_MULTICAST_DELEGATE(FOnDeath);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChange, float NewHealthValue, float OldHealthValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChange, float, NewHealthValue, float, OldHealthValue);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FOURTALE_API UFourTaleHealthComponent : public UActorComponent
