@@ -72,7 +72,7 @@ void AFourTaleCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Completed, WeaponComponent, &UFourTaleWeaponComponent::StopShoot);
 		EnhancedInputComponent->BindAction(ReloadWeaponAction, ETriggerEvent::Triggered, WeaponComponent, &UFourTaleWeaponComponent::ReloadWeapon);
 		EnhancedInputComponent->BindAction(ChangeWeaponFireModeAction, ETriggerEvent::Triggered, WeaponComponent, &UFourTaleWeaponComponent::ChangeWeaponFireMode);
-		EnhancedInputComponent->BindAction(ChangeWeapon, ETriggerEvent::Triggered, WeaponComponent, &UFourTaleWeaponComponent::ChangeWeapon);
+		EnhancedInputComponent->BindAction(ChangeWeapon, ETriggerEvent::Triggered, WeaponComponent, &UFourTaleWeaponComponent::ServerChangeWeapon);
 	}
 	else
 	{

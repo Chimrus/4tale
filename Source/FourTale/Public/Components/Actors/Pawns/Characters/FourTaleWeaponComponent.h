@@ -41,6 +41,9 @@ public:
 	UFUNCTION()
 	void NextWeapon(bool bIsNextWeapon);
 
+	UFUNCTION(Server, Reliable)
+	void ServerChangeWeapon(const FInputActionValue& Value);
+
 	UFUNCTION(NetMulticast, Reliable)
 	void ChangeWeapon(const FInputActionValue& Value);
 

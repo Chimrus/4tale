@@ -81,6 +81,11 @@ void UFourTaleWeaponComponent::NextWeapon(bool bIsNextWeapon)
 	
 }
 
+void UFourTaleWeaponComponent::ServerChangeWeapon_Implementation(const FInputActionValue& Value)
+{
+	ChangeWeapon(Value);
+}
+
 void UFourTaleWeaponComponent::ChangeWeapon_Implementation(const FInputActionValue& Value)
 {
 	float AxisVector = Value.Get<float>();
