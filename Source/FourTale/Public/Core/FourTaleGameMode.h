@@ -3,15 +3,31 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "FourTaleGameState.h"
+#include "GameFramework/GameMode.h"
 #include "FourTaleGameMode.generated.h"
 
-UCLASS(minimalapi)
-class AFourTaleGameMode : public AGameModeBase
+UCLASS()
+class FOURTALE_API AFourTaleGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
 public:
+	
+	void RoundCountDown();
+	
+	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly)
+	float RoundTime = 90;
+	
+	float TimeLeft = 90;
+
+	UPROPERTY()
+	AFourTaleGameState* FourTaleGameState;
+	
+	FTimerHandle CountDownTimerHalndle;
+
 	AFourTaleGameMode();
 	
 	void StopRound();

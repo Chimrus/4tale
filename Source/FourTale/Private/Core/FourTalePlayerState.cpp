@@ -3,24 +3,22 @@
 
 #include "Core/FourTalePlayerState.h"
 
+#include "Net/UnrealNetwork.h"
 
-// Sets default values
-AFourTalePlayerState::AFourTalePlayerState()
+
+void AFourTalePlayerState::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
+	DOREPLIFETIME(AFourTalePlayerState, Kills);
+	DOREPLIFETIME(AFourTalePlayerState, Deathes);
 }
 
-// Called when the game starts or when spawned
-void AFourTalePlayerState::BeginPlay()
+void AFourTalePlayerState::OnRep_Kills()
 {
-	Super::BeginPlay();
-	
+	OnStatChange.Broadcast();
 }
 
-// Called every frame
-void AFourTalePlayerState::Tick(float DeltaTime)
+void AFourTalePlayerState::OnRep_Deathes()
 {
-	Super::Tick(DeltaTime);
+	OnStatChange.Broadcast();
 }
-

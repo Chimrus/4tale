@@ -72,5 +72,6 @@ void UFourTaleHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damag
 
 void UFourTaleHealthComponent::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
 {
+	Super::GetLifetimeReplicatedProps( OutLifetimeProps );
 	DOREPLIFETIME(UFourTaleHealthComponent, Health);
 }

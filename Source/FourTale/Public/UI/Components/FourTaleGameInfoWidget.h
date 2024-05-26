@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Core/FourTalePlayerState.h"
 #include "FourTaleGameInfoWidget.generated.h"
 
+class AFourTaleGameState;
 class UTextBlock;
 /**
  * 
@@ -16,10 +18,28 @@ class FOURTALE_API UFourTaleGameInfoWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	UFUNCTION()
+	void UpdatePlayerStat();
+	
+	UFUNCTION()
+	void UpdateGameStat(float TimeLeft);
 
+	void UpdatePlayerState();
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
 	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
 	UTextBlock* TimeRemainingTextBlock;
+
+	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
+	UTextBlock* KillsTextBlock;
+
+	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
+	UTextBlock* DeathesTextBlock;
+
+	UPROPERTY()
+	AFourTalePlayerState* FourTalePlayerState;
+	
+	UPROPERTY()
+	AFourTaleGameState* TaleGameState;
 };

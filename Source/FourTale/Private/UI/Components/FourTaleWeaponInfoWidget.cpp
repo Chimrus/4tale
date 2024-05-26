@@ -28,6 +28,10 @@ void UFourTaleWeaponInfoWidget::NativeConstruct()
 		return;
 	}
 	WeaponComponent->OnWeaponDataChange.AddDynamic(this, &UFourTaleWeaponInfoWidget::WeaponDataChange);
+	if (WeaponComponent->CurrentWeapon)
+	{
+		WeaponDataChange(WeaponComponent->CurrentWeapon->WeaponStats);
+	}
 }
 
 void UFourTaleWeaponInfoWidget::NativeDestruct()

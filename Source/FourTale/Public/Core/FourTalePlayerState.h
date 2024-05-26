@@ -6,26 +6,31 @@
 #include "GameFramework/PlayerState.h"
 #include "FourTalePlayerState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStatChangeSignature);
+
 UCLASS()
 class FOURTALE_API AFourTalePlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
-	AFourTalePlayerState();
+	FORCEINLINE void IncreaseKills(){Kills++; OnStatChange.Broadcast();}
+	FORCEINLINE void IncreaseDeathes(){Deathes++; OnStatChange.Broadcast();}
+	FORCEINLINE int32 GetKills() const {return Kills;}
+	FORCEINLINE int32 GetDeathes() const {return Deathes;}
 
-	UPROPERTY()
+	FOnStatChangeSignature OnStatChange;
+	
+	UPROPERTY(Replicated,  ReplicatedUsing = OnRep_Kills)
 	int32 Kills = 0;
 
-	UPROPERTY()
+	UPROPERTY(Replicated,  ReplicatedUsing = OnRep_Deathes)
 	int32 Deathes = 0;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UFUNCTION()
+	void OnRep_Kills();
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	void OnRep_Deathes();
+
 };
