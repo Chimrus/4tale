@@ -31,5 +31,4 @@ void AFourTaleGameMode::Killed(AController* KillerController, AController* Victi
 	{
 		VictimPlayerState->Deathes++;
 	}
-	RestartPlayer(VictimController);
 }

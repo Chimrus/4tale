@@ -17,6 +17,12 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastPlayShotEffects(const FVector& TraceStart, const FVector& TraceEnd);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerMakeShot(const FVector& TraceStart, const FVector& TraceEnd, float Damage);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

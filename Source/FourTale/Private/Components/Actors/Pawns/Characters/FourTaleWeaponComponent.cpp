@@ -12,6 +12,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogWeaponComponent, All, All)
 UFourTaleWeaponComponent::UFourTaleWeaponComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicatedByDefault(true);
 }
 
 void UFourTaleWeaponComponent::StartShoot()
@@ -80,7 +81,7 @@ void UFourTaleWeaponComponent::NextWeapon(bool bIsNextWeapon)
 	
 }
 
-void UFourTaleWeaponComponent::ChangeWeapon(const FInputActionValue& Value)
+void UFourTaleWeaponComponent::ChangeWeapon_Implementation(const FInputActionValue& Value)
 {
 	float AxisVector = Value.Get<float>();
 	NextWeapon(AxisVector > 0.f);
@@ -102,6 +103,7 @@ void UFourTaleWeaponComponent::BeginPlay()
 					Weapon, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation(), SpawnParams);
 				NewWeapon->SetActorHiddenInGame(true);
 				NewWeapon->SetOwner(GetOwner());
+				NewWeapon->AttachToActor(GetOwner(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 				Weapons.Add(NewWeapon);
 			}
 			CurrentWeapon = Weapons[0];

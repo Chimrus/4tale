@@ -16,13 +16,13 @@ DEFINE_LOG_CATEGORY_STATIC(HealthComponentLog, All,All);
 UFourTaleHealthComponent::UFourTaleHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicatedByDefault(true);
 }
 
 
 void UFourTaleHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	SetIsReplicated(true);
 	SetHealth(MaxHealth);
 	ComponentOwner = Cast<AFourTaleCharacter>(GetOwner());
 	if (ComponentOwner)
@@ -47,15 +47,17 @@ void UFourTaleHealthComponent::SetHealth(float NewHealth)
 void UFourTaleHealthComponent::OnTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
 	AController* InstigatedBy, AActor* DamageCauser)
 {
+	UE_LOG(LogTemp, Error, TEXT("%hs"), __FUNCTION__)
+
 	SetHealth(Health - Damage);
 	if (FMath::IsNearlyZero(Health))
 	{
-		const auto GameMode = Cast<AFourTaleGameMode>(GetWorld()->GetAuthGameMode());
+		AFourTaleGameMode* GameMode = Cast<AFourTaleGameMode>(GetWorld()->GetAuthGameMode());
 		if (!GameMode)
 		{
 			return;
 		}
-		const auto VictimController = ComponentOwner ? ComponentOwner->GetController() : nullptr;
+		AController* VictimController = ComponentOwner ? ComponentOwner->GetController() : nullptr;
 			GameMode->Killed(InstigatedBy, VictimController);	
 
 		UE_LOG(HealthComponentLog, Display, TEXT("Player %s is dead"), *ComponentOwner->GetName());

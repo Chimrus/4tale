@@ -37,9 +37,11 @@ public:
 	
 	UFUNCTION()
 	void UnbindWeaponDelegates(AFourTaleBaseWeapon* Weapon);
-	
+
+	UFUNCTION()
 	void NextWeapon(bool bIsNextWeapon);
-	
+
+	UFUNCTION(NetMulticast, Reliable)
 	void ChangeWeapon(const FInputActionValue& Value);
 
 	UPROPERTY()
@@ -48,11 +50,11 @@ public:
 	UPROPERTY()
 	AFourTaleBaseWeapon* CurrentWeapon;
 
+	UPROPERTY()
+	TArray<AFourTaleBaseWeapon*> Weapons;
+
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	UPROPERTY()
-	TArray<AFourTaleBaseWeapon*> Weapons;
 };

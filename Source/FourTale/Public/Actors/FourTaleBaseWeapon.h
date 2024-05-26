@@ -60,7 +60,10 @@ class FOURTALE_API AFourTaleBaseWeapon : public AActor
 public:
 	AFourTaleBaseWeapon();
 
+	UFUNCTION()
 	virtual void StartShoot();
+
+	UFUNCTION()
 	virtual void StopShoot();
 	virtual void ReloadWeapon();
 	virtual void ChangeWeaponFireMode();
@@ -69,13 +72,23 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	FWeaponStats WeaponStats;
+
+
+
+	UFUNCTION()
 	void MakeShot();
+
+	UFUNCTION()
 	void TryToMakeShot();
+
 
 	UPROPERTY()
 	FOnWeaponActorDataChangeSignature OnWeaponActorDataChange;
 	
 protected:
+	UFUNCTION()
+	void OwnerDestroy(AActor* Actor, EEndPlayReason::Type EndPlayReason);
+	
 	virtual void BeginPlay() override;
 
 public:

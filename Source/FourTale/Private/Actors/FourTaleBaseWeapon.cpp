@@ -3,6 +3,8 @@
 
 #include "Actors/FourTaleBaseWeapon.h"
 
+#include "Core/FourTalePlayerController.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/Character.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BaseWeaponLog, All, All)
@@ -25,6 +27,69 @@ void AFourTaleBaseWeapon::StartShoot()
 	                                  true);
 	TryToMakeShot();
 }
+
+void AFourTaleBaseWeapon::TryToMakeShot()
+{
+	if (WeaponStats.CurrentAmmo <= 0 || WeaponStats.SemiAutoShotsDone >= WeaponStats.SemiAutoShotsCount)
+	{
+		GetWorldTimerManager().ClearTimer(ShootTimer);
+		return;
+	}
+	if (HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%hs"), __FUNCTION__)
+
+		switch (WeaponStats.CurrentFiringMode)
+		{
+		case EFiringMode::FM_Single: MakeShot();
+			GetWorldTimerManager().ClearTimer(ShootTimer);
+			break;
+		case EFiringMode::FM_SemiAuto: WeaponStats.SemiAutoShotsDone++;
+			MakeShot();
+			break;
+		case EFiringMode::FM_FullAuto: MakeShot();
+			break;
+		case EFiringMode::FM_MAX: break;
+		default: ;
+		}
+	}
+}
+
+void AFourTaleBaseWeapon::MakeShot()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%hs"), __FUNCTION__)
+
+	ACharacter* Player = Cast<ACharacter>(GetOwner());
+	if (!Player)
+	{
+		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs Player not valid"), __FUNCTION__)
+		return;
+	}
+	AFourTalePlayerController* Controller = Player->GetController<AFourTalePlayerController>();
+	if (!Controller)
+	{
+		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs Controller not valid"), __FUNCTION__)
+		return;
+	}
+	FVector ViewLocation;
+	FRotator ViewRotation;
+	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	FVector TraceStart = ViewLocation - FVector(0,0,20);
+	float ConeHalfAngleRad = FMath::DegreesToRadians(WeaponStats.BulletSpread);
+	FVector ShootDirection = FMath::VRandCone(ViewRotation.Vector(), ConeHalfAngleRad);
+	FVector TraceEnd = TraceStart + ShootDirection * 100000;
+	if (!GetWorld())
+	{
+		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs world not valid"), __FUNCTION__)
+		return;
+	}
+	WeaponStats.CurrentAmmo--;
+	Controller->ServerMakeShot(TraceStart, TraceEnd, WeaponStats.Damage);
+	OnWeaponActorDataChange.Broadcast(WeaponStats);
+	UE_LOG(BaseWeaponLog, Display, TEXT("%hs pew! ammo %d"), __FUNCTION__, WeaponStats.CurrentAmmo)
+}
+
+
 
 void AFourTaleBaseWeapon::StopShoot()
 {
@@ -71,64 +136,10 @@ FString AFourTaleBaseWeapon::GetFiringModeAsString() const
 	return FString("Unknown");
 }
 
-void AFourTaleBaseWeapon::MakeShot()
-{
-	ACharacter* Player = Cast<ACharacter>(GetOwner());
-	if (!Player)
-	{
-		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs Player not valid"), __FUNCTION__)
-		return;
-	}
-	AController* Controller = Player->GetController<AController>();
-	if (!Controller)
-	{
-		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs Controller not valid"), __FUNCTION__)
-		return;
-	}
-	FVector ViewLocation;
-	FRotator ViewRotation;
-	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
-	FVector TraceStart = ViewLocation;
-	float ConeHalfAngleRad = FMath::DegreesToRadians(WeaponStats.BulletSpread);
-	FVector ShootDirection = FMath::VRandCone(ViewRotation.Vector(), ConeHalfAngleRad);
-	FVector TraceEnd = TraceStart + ShootDirection * 100000;
-	FHitResult HitResult;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(GetOwner());
-	if (!GetWorld())
-	{
-		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs world not valid"), __FUNCTION__)
-		return;
-	}
-	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, Params);
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 5, 0, 20);
-	HitResult.GetActor()->ReceiveAnyDamage(WeaponStats.Damage, nullptr, Controller, Player);
-	WeaponStats.CurrentAmmo--;
-	OnWeaponActorDataChange.Broadcast(WeaponStats);
-	UE_LOG(BaseWeaponLog, Display, TEXT("%hs pew! ammo %d"), __FUNCTION__, WeaponStats.CurrentAmmo)
-}
 
-void AFourTaleBaseWeapon::TryToMakeShot()
+void AFourTaleBaseWeapon::OwnerDestroy(AActor* Actor, EEndPlayReason::Type EndPlayReason)
 {
-	if (WeaponStats.CurrentAmmo <= 0 || WeaponStats.SemiAutoShotsDone >= WeaponStats.SemiAutoShotsCount)
-	{
-		GetWorldTimerManager().ClearTimer(ShootTimer);
-		return;
-	}
-
-	switch (WeaponStats.CurrentFiringMode)
-	{
-	case EFiringMode::FM_Single: MakeShot();
-		GetWorldTimerManager().ClearTimer(ShootTimer);
-		break;
-	case EFiringMode::FM_SemiAuto: WeaponStats.SemiAutoShotsDone++;
-		MakeShot();
-		break;
-	case EFiringMode::FM_FullAuto: MakeShot();
-		break;
-	case EFiringMode::FM_MAX: break;
-	default: ;
-	}
+	Destroy(true);
 }
 
 void AFourTaleBaseWeapon::BeginPlay()
@@ -141,7 +152,10 @@ void AFourTaleBaseWeapon::BeginPlay()
 		UE_LOG(BaseWeaponLog, Warning, TEXT("%hs Available Firing Mode is empty in %s"), __FUNCTION__,
 		       *this->GetClass()->GetName())
 	}
+	WeaponStats.CurrentAmmo = WeaponStats.Ammo;
 	WeaponStats.CurrentFiringMode = WeaponStats.AvailableFiringMode.Array()[0];
+
+	GetOwner()->OnEndPlay.AddDynamic(this, &AFourTaleBaseWeapon::OwnerDestroy);
 }
 
 // Called every frame
