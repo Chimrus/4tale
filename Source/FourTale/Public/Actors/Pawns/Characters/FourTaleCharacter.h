@@ -22,6 +22,7 @@ class AFourTaleCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
@@ -33,7 +34,7 @@ class AFourTaleCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
 	UFourTaleWeaponComponent* WeaponComponent;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 
@@ -60,22 +61,18 @@ class AFourTaleCharacter : public ACharacter
 
 public:
 	AFourTaleCharacter();
-	
 
 protected:
-
 	void Move(const FInputActionValue& Value);
 
 	void Look(const FInputActionValue& Value);
-			
 
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	virtual void BeginPlay();
 
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
-

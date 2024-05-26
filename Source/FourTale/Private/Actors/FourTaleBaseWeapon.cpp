@@ -35,6 +35,7 @@ void AFourTaleBaseWeapon::StopShoot()
 void AFourTaleBaseWeapon::ReloadWeapon()
 {
 	WeaponStats.CurrentAmmo = WeaponStats.Ammo;
+	OnWeaponActorDataChange.Broadcast(WeaponStats);
 }
 
 void AFourTaleBaseWeapon::ChangeWeaponFireMode()
@@ -50,7 +51,7 @@ void AFourTaleBaseWeapon::ChangeWeaponFireMode()
 	int32 NextIndex = (CurrentIndex + 1) % ModesArray.Num();
 	WeaponStats.CurrentFiringMode = ModesArray[NextIndex];
 	UE_LOG(BaseWeaponLog, Display, TEXT("%s now current weapon fire mode"), *GetFiringModeAsString());
-	OnWeaponActorChangeFireMode.Broadcast(WeaponStats);
+	OnWeaponActorDataChange.Broadcast(WeaponStats);
 }
 
 void AFourTaleBaseWeapon::InitializeFiringModeToStringMap()
@@ -100,8 +101,10 @@ void AFourTaleBaseWeapon::MakeShot()
 		return;
 	}
 	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, Params);
-	DrawDebugLine(GetWorld(),TraceStart, TraceEnd, FColor::Red, false, 5, 0 ,20);
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 5, 0, 20);
+	HitResult.GetActor()->ReceiveAnyDamage(WeaponStats.Damage, nullptr, Controller, Player);
 	WeaponStats.CurrentAmmo--;
+	OnWeaponActorDataChange.Broadcast(WeaponStats);
 	UE_LOG(BaseWeaponLog, Display, TEXT("%hs pew! ammo %d"), __FUNCTION__, WeaponStats.CurrentAmmo)
 }
 

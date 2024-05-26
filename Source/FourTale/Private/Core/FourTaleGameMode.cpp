@@ -2,6 +2,7 @@
 
 #include "FourTale/Public/Core/FourTaleGameMode.h"
 #include "Actors/Pawns/Characters/FourTaleCharacter.h"
+#include "Core/FourTalePlayerState.h"
 #include "UObject/ConstructorHelpers.h"
 
 AFourTaleGameMode::AFourTaleGameMode()
@@ -11,5 +12,24 @@ AFourTaleGameMode::AFourTaleGameMode()
 
 void AFourTaleGameMode::StopRound()
 {
-	SetPause(nullptr, false);
+	//SetPause(nullptr, false);
+}
+
+void AFourTaleGameMode::Killed(AController* KillerController, AController* VictimController)
+{
+	AFourTalePlayerState* KillerPlayerState = KillerController
+											 ? KillerController->GetPlayerState<AFourTalePlayerState>()
+											 : nullptr;
+	AFourTalePlayerState* VictimPlayerState = VictimController
+											 ? VictimController->GetPlayerState<AFourTalePlayerState>()
+											 : nullptr;
+	if (KillerPlayerState)
+	{
+		KillerPlayerState->Kills++;
+	}
+	if (VictimPlayerState)
+	{
+		VictimPlayerState->Deathes++;
+	}
+	RestartPlayer(VictimController);
 }

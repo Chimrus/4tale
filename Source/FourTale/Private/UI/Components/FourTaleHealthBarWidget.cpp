@@ -32,6 +32,8 @@ void UFourTaleHealthBarWidget::NativeDestruct()
 void UFourTaleHealthBarWidget::HealthUpdate(float NewHealthValue, float OldHealthValue)
 {
 	HealthProgressBar->SetPercent(HealthComponent->GetHealthPercent());
+	FLinearColor HealthColor = FMath::Lerp(FLinearColor::Red, FLinearColor::Green, HealthComponent->GetHealthPercent());
+	HealthProgressBar->SetFillColorAndOpacity(HealthColor);
 	FText HealthText = FText::FromString(FString::Printf(TEXT("%f / %f"), HealthComponent->GetHealth(), HealthComponent->GetMaxHealth()));
 	HealthCount->SetText(HealthText);
 }

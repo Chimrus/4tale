@@ -15,6 +15,8 @@ public:
 	AFourTaleGameMode();
 	
 	void StopRound();
+	
+	void Killed(AController* KillerController, AController* VictimController);
 };
 
 

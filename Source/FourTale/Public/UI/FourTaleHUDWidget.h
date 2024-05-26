@@ -6,6 +6,9 @@
 #include "Blueprint/UserWidget.h"
 #include "FourTaleHUDWidget.generated.h"
 
+class UFourTaleWeaponInfoWidget;
+class UFourTaleHealthBarWidget;
+class UFourTaleGameInfoWidget;
 /**
  * 
  */
@@ -15,4 +18,13 @@ class FOURTALE_API UFourTaleHUDWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
+	UFourTaleGameInfoWidget* GameInfoWidget;
+
+	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
+	UFourTaleHealthBarWidget* HealthBarWidget;
+
+	UPROPERTY(BlueprintReadOnly,meta = (BindWidget))
+	UFourTaleWeaponInfoWidget* WeaponInfoWidget;
 };

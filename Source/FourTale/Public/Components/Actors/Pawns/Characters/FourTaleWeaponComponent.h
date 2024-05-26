@@ -5,8 +5,7 @@
 #include "Components/ActorComponent.h"
 #include "FourTaleWeaponComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponMakeShotSignature, FWeaponStats&, WeaponStats);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponChangeFireModeSignature, FWeaponStats&, WeaponStats);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponDataChangeSignature, FWeaponStats&, WeaponStats);
 
 struct FInputActionValue;
 class AFourTaleBaseWeapon;
@@ -31,25 +30,23 @@ public:
 	TArray<TSubclassOf<AFourTaleBaseWeapon>> WeaponsClasses;
 
 	UFUNCTION()
-	void WeaponActorMakeShot(FWeaponStats& WeaponStats);
-
-	UFUNCTION()
-	void WeaponActorChangeFire(FWeaponStats& WeaponStats);
+	void WeaponActorDataChangeHandle(FWeaponStats& WeaponStats);
 	
 	UFUNCTION()
-	void BindWeaponDelegates(AFourTaleBaseWeapon* CurrentWeapon);
+	void BindWeaponDelegates(AFourTaleBaseWeapon* Weapon);
+	
 	UFUNCTION()
-	void UnbindWeaponDelegates(AFourTaleBaseWeapon* CurrentWeapon);
+	void UnbindWeaponDelegates(AFourTaleBaseWeapon* Weapon);
 	
 	void NextWeapon(bool bIsNextWeapon);
 	
 	void ChangeWeapon(const FInputActionValue& Value);
 
 	UPROPERTY()
-	FOnWeaponMakeShotSignature OnWeaponMakeShot;
+	FOnWeaponDataChangeSignature OnWeaponDataChange;
 
 	UPROPERTY()
-	FOnWeaponChangeFireModeSignature OnWeaponChangeFireMode;
+	AFourTaleBaseWeapon* CurrentWeapon;
 
 protected:
 	virtual void BeginPlay() override;
@@ -58,7 +55,4 @@ protected:
 
 	UPROPERTY()
 	TArray<AFourTaleBaseWeapon*> Weapons;
-	
-	UPROPERTY()
-	AFourTaleBaseWeapon* CurrentWeapon;
 };

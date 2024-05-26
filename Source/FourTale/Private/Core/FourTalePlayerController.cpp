@@ -3,6 +3,9 @@
 
 #include "FourTale/Public/Core/FourTalePlayerController.h"
 
+#include "Blueprint/UserWidget.h"
+
+DEFINE_LOG_CATEGORY_STATIC(PlayerControlleLog, All,All);
 
 // Sets default values
 AFourTalePlayerController::AFourTalePlayerController()
@@ -15,7 +18,15 @@ AFourTalePlayerController::AFourTalePlayerController()
 void AFourTalePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	if (HUDWidgetClass)
+	{
+		UUserWidget* HUDWidget = CreateWidget<UUserWidget>(GetWorld(), HUDWidgetClass);
+		HUDWidget->AddToViewport();
+	}
+	else
+	{
+		UE_LOG(PlayerControlleLog, Error, TEXT("%hs HUDWidgetClass is empty!"), __FUNCTION__);
+	}
 }
 
 // Called every frame
@@ -23,4 +34,3 @@ void AFourTalePlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-

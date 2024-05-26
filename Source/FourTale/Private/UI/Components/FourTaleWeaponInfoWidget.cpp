@@ -7,17 +7,13 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/Actors/Pawns/Characters/FourTaleWeaponComponent.h"
 
-void UFourTaleWeaponInfoWidget::ChangeFireMode(FWeaponStats& WeaponStats)
+void UFourTaleWeaponInfoWidget::WeaponDataChange(FWeaponStats& WeaponStats)
 {
 	WeaponFireMode->SetActiveWidgetIndex(static_cast<int32>(WeaponStats.CurrentFiringMode));
-}
-
-void UFourTaleWeaponInfoWidget::WeaponMakeShot(FWeaponStats& WeaponStats)
-{
 	FText AmmoText = FText::FromString(FString::Printf(TEXT("%d / %d"), WeaponStats.CurrentAmmo, WeaponStats.Ammo));
 	AmmoCount->SetText(AmmoText);
 }
-a
+
 void UFourTaleWeaponInfoWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -31,11 +27,11 @@ void UFourTaleWeaponInfoWidget::NativeConstruct()
 	{
 		return;
 	}
-	WeaponComponent->OnWeaponChangeFireMode.AddDynamic(this, &UFourTaleWeaponInfoWidget::ChangeFireMode);
-	WeaponComponent->OnWeaponMakeShot.AddDynamic(this, &UFourTaleWeaponInfoWidget::WeaponMakeShot);
+	WeaponComponent->OnWeaponDataChange.AddDynamic(this, &UFourTaleWeaponInfoWidget::WeaponDataChange);
 }
 
 void UFourTaleWeaponInfoWidget::NativeDestruct()
 {
 	Super::NativeDestruct();
+	WeaponComponent->OnWeaponDataChange.RemoveAll(this);
 }

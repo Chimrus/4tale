@@ -18,10 +18,7 @@ class FOURTALE_API UFourTaleWeaponInfoWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	UFUNCTION()
-	void ChangeFireMode(FWeaponStats& WeaponStats);
-
-	UFUNCTION()
-	void WeaponMakeShot(FWeaponStats& WeaponStats);
+	void WeaponDataChange(FWeaponStats& WeaponStats);
 	
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;

@@ -44,26 +44,19 @@ void UFourTaleWeaponComponent::ChangeWeaponFireMode()
 }
 
 
-void UFourTaleWeaponComponent::WeaponActorMakeShot(FWeaponStats& WeaponStats)
+void UFourTaleWeaponComponent::WeaponActorDataChangeHandle(FWeaponStats& WeaponStats)
 {
-	OnWeaponMakeShot.Broadcast(WeaponStats);
+	OnWeaponDataChange.Broadcast(WeaponStats);
 }
 
-void UFourTaleWeaponComponent::WeaponActorChangeFire(FWeaponStats& WeaponStats)
+void UFourTaleWeaponComponent::BindWeaponDelegates(AFourTaleBaseWeapon* Weapon)
 {
-	OnWeaponChangeFireMode.Broadcast(WeaponStats);
+	Weapon->OnWeaponActorDataChange.AddDynamic(this, &UFourTaleWeaponComponent::WeaponActorDataChangeHandle);
 }
 
-void UFourTaleWeaponComponent::BindWeaponDelegates(AFourTaleBaseWeapon* CurrentWeapon)
+void UFourTaleWeaponComponent::UnbindWeaponDelegates(AFourTaleBaseWeapon* Weapon)
 {
-	CurrentWeapon->OnWeaponActorMakeShot.AddDynamic(this, &UFourTaleWeaponComponent::WeaponActorMakeShot);
-	CurrentWeapon->OnWeaponActorChangeFireMode.AddDynamic(this, &UFourTaleWeaponComponent::WeaponActorChangeFire);
-}
-
-void UFourTaleWeaponComponent::UnbindWeaponDelegates(AFourTaleBaseWeapon* CurrentWeapon)
-{
-	CurrentWeapon->OnWeaponActorMakeShot.RemoveAll(this);
-	CurrentWeapon->OnWeaponActorChangeFireMode.RemoveAll(this);
+	Weapon->OnWeaponActorDataChange.RemoveAll(this);
 }
 
 void UFourTaleWeaponComponent::NextWeapon(bool bIsNextWeapon)
@@ -77,6 +70,7 @@ void UFourTaleWeaponComponent::NextWeapon(bool bIsNextWeapon)
 		CurrentWeapon = Weapons[NextIndex];
 		BindWeaponDelegates(CurrentWeapon);
 		CurrentWeapon->SetActorHiddenInGame(false);
+		CurrentWeapon->OnWeaponActorDataChange.Broadcast(CurrentWeapon->WeaponStats);
 		UE_LOG(LogWeaponComponent, Display, TEXT("%hs, %s: CurrentWeapon changed to %s"), __FUNCTION__, bIsNextWeapon ? TEXT("true") : TEXT("false"), *CurrentWeapon->GetName());
 	}
 	else
@@ -113,6 +107,7 @@ void UFourTaleWeaponComponent::BeginPlay()
 			CurrentWeapon = Weapons[0];
 			CurrentWeapon->SetActorHiddenInGame(false);
 			BindWeaponDelegates(CurrentWeapon);
+			CurrentWeapon->OnWeaponActorDataChange.Broadcast(CurrentWeapon->WeaponStats);
 		}
 		else
 		{

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "FourTaleHealthComponent.generated.h"
+class AFourTaleCharacter;
 DECLARE_MULTICAST_DELEGATE(FOnDeath);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChange, float NewHealthValue, float OldHealthValue);
 
@@ -20,11 +21,12 @@ public:
 	FORCEINLINE float GetMaxHealth() const {return MaxHealth;}
 	FORCEINLINE float GetHealthPercent() const {return Health/MaxHealth;}
 
-	UPROPERTY()
 	FOnDeath OnDeath;
 
-	UPROPERTY()
 	FOnHealthChange	OnHealthChange;
+
+	UPROPERTY()
+	AFourTaleCharacter* ComponentOwner;
 
 protected:
 
@@ -34,7 +36,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0.0", ClampMax = "1000.0"))
 	float MaxHealth = 100.f;
 
-	UPROPERTY(ReplicatedUsing = OnRep_Health)
+	UPROPERTY(Replicated,  ReplicatedUsing = OnRep_Health)
 	float Health;
 
 	UFUNCTION()
